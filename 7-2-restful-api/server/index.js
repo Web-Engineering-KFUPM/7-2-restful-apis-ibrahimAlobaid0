@@ -12,30 +12,35 @@ const PORT = process.env.PORT || 5174;
 app.use(cors());              
 app.use(express.json());
 
-await connectDB(process.env.MONGO_URL);
+import mongoose from "mongoose";
+async function connectDB() {
+  try {
+    await mongoose.connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
+    console.log("[DB] Mongo connected");
+  } catch (error) {
+    console.error("[DB] Connection error:", error.message);
+    process.exit(1); // Optional: Stop the server if DB fails
+  }
+}
+
+
+connectDB();
 
 // api/songs (Read all songs)
-app.get("/api/songs", async (req, res) => {
-    try {
-        const songs = await Song.find();
-        res.json(songs);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
+app.get("/api/songs", async (_req, res) => {
+    const rows = await Song.find().sort({ createdAt: -1 });
+    res.json(rows);
 });
 
 // get one song by id
 app.get("/api/songs/:id", async (req, res) => {
-    try {
-        const song = await Song.findById(req.params.id);    
-        if (!song) {
-            return res.status(404).json({ message: "Song not found" });
-        }
-        res.json(song);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
-    }
+    const s = await Song.findById(req.params.id);
+    if (!s) return res.status(404).json({ message: "Song not found" });
+    res.json(s);
 });
 
 // api/songs (Insert song)
