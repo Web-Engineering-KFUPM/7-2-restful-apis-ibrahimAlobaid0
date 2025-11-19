@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import React from "react";
 
 export default function EditDialog({ open, song, onClose, onSave, saving }) {
-  const [form, setForm] = useState({ id: "", title: "", artist: "", year: "" });
+  const [form, setForm] = useState({ _id: "", title: "", artist: "", year: "" });
 
   useEffect(() => {
     if (song) setForm({
-      id: song.id,
+      _id: song._id,
       title: song.title || "",
       artist: song.artist || "",
       year: song.year ?? ""
@@ -23,7 +23,7 @@ export default function EditDialog({ open, song, onClose, onSave, saving }) {
   const submit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.artist.trim()) return;
-    await onSave(form.id, {
+    await onSave(form._id, {
       title: form.title.trim(),
       artist: form.artist.trim(),
       year: form.year ? Number(form.year) : undefined
